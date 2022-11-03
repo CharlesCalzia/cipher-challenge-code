@@ -1,0 +1,4 @@
+wordninja
+langdetect
+nltk
+secretpy
