@@ -2,3 +2,4 @@ wordninja
 langdetect
 nltk
 secretpy
+pycipher

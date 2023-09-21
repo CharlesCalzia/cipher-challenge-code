@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup as bs4
 import requests
 import sys
 import time
+import os
+
+path = os.path.dirname(os.path.realpath(__file__))
 
 
 def inputs():
@@ -44,15 +47,12 @@ def inputs():
 
     def cipher_chal_get(
         chal,
-    ):  # a or b: 1 for a, 2 for b, challenge #gets ciphertext automatically from cipher challenge site
-
-        link = (
-            f"https://www.cipherchallenge.org/challenge/challenge-{str(int(chal)-1)}-2"
-        )
+    ):  # Gets the ciphertext from cipher challenge site, according to the specified challenge
+        link = f"https://www.cipherchallenge.org/challenge/challenge-{str(int(chal))}"
         print(link)
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
-        }  # headers needed for cipher challenge site, else rejected
+        }  # Headers needed for cipher challenge site, else rejected
         page = requests.get(link, headers=headers)
         soup = bs4(page.text, "html.parser")
         x = soup.findAll(
@@ -65,24 +65,24 @@ def inputs():
     ## INPUT
 
     x = input(
-        "Enter mode for input (1= manual, 2= cipher challenge webscrape, 3= read from file): "
-    )  # 1= manual, 2= cipher challenge webscrape, 3= read from file
+        "Enter mode for input (1 = manual, 2 = cipher challenge webscrape, 3 = read from file): "
+    )
 
-    if x == "1":  # manual
+    if x == "1":  # Manual
         print("Enter text to decode: ")
-        input0 = sys.stdin.readlines()
+        input0 = sys.stdin.readlines()  # Allows multiple lines of input
 
         input0 = [(i.lower()).strip() for i in input0]
         for item in input0:
             ciphertext += item
         ciphertext = " ".join(ciphertext.splitlines())
 
-    elif x == "2":  # webscrape
+    elif x == "2":  # Webscrape
         x = input("Enter cipher challenge number: ")
         c1, c2 = cipher_chal_get(x)
-        with open("challenge1.txt", "w+") as file:  # save ciphertext to file
+        with open(path + "/challenge1.txt", "w+") as file:  # save ciphertext to file
             file.write(c1)
-        with open("challenge2.txt", "w+") as file:
+        with open(path + "/challenge2.txt", "w+") as file:
             file.write(c2)
         print("\n", c1, "\n\n")
         print(c2, "\n\n")
@@ -92,18 +92,20 @@ def inputs():
         elif c1_c2 == "2":
             ciphertext = c2
 
-    elif x == "3":  # read ciphertext from file
+    elif x == "3":  # Read ciphertext from file
         c1 = input("Enter challenge: ")
-        with open("challenge" + c1 + ".txt", "r") as file:
+        with open(path + "/challenge" + c1 + ".txt", "r") as file:
             x = "".join([i.strip() for i in file.readlines()])
             ciphertext = x
-        print(x)
 
     else:
         quit()
 
+    # Puts all ciphertext in lower case and removes all symbols, new lines, spaces... (which could cause problems in decryption and are not really necessary)
     ciphertext = ciphertext.lower()
     for i in symbols:
         ciphertext = ciphertext.replace(i, "")
+
+    print("Ciphertext: ", ciphertext)
 
     return ciphertext
